@@ -2,5 +2,5 @@
 
 ## Commands:
 
-- ```npm run``
-- ```npm test``
+- ```npm run``` (nodemon)
+- ```npm test```
