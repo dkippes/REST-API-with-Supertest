@@ -2,6 +2,9 @@ const request =  require('supertest');
 
 const app = require('../app');
 
+/**
+ * "GET/users"
+ */
 describe("GET /users", () => {
 	it('respond with json containing a list of all users', done => {
 		request(app)
@@ -12,6 +15,9 @@ describe("GET /users", () => {
 	});
 });
 
+/**
+ * "GET/users/:id"
+ */
 describe("GET /users/:id", () => {
 	it('respond with json containing a single user', done => {
 		request(app)
@@ -27,7 +33,13 @@ describe("GET /users/:id", () => {
 			.set('Accept', 'application/json') // Headers
 			.expect('Content-Type', /json/) // Headers
 			.expect(200)
-			.expect('"User 1 Found"')
+			.expect({
+				"user": {
+					"id": 1,
+					"username": "diego",
+					"password": 1234
+				}
+			})
 			.end((err) => {
 				if(err) return done(err);
 				done();
@@ -36,19 +48,44 @@ describe("GET /users/:id", () => {
 
 	it('respond with json "User not found"', done => {
 		request(app)
-			.get('/users/3')
+			.get('/users/55')
 			.set('Accept', 'application/json') // Headers
 			.expect('Content-Type', /json/) // Headers
 			.expect(404)
-			.expect('"User not found"')
+			.expect({
+				message: 'User not found'
+			})
 			.end((err) => {
 				if(err) return done(err);
 				done();
-			})
+			});
 	});
 });
 
+/**
+ * "GET/users/addUser"
+ */
 describe("POST /users/addUser", () => {
+	it('respond with code 206 which is Partial Content', done => {
+		const data = {
+			"user": "new user",
+			"password": "mypassword"
+		}
+		request(app)
+			.post('/users/addUser')
+			.send(data)
+			.set('Accept', 'application/json')
+			.expect('Content-Type', /json/)
+			.expect(206)
+			.expect({
+				message: 'Partial Content'
+			})
+			.end(err => {
+				if (err) return done(err);
+				done();
+			});
+	});
+
 	it('respond with 201 created', done => {
 		const data = {
 			username: 'diego',
@@ -60,6 +97,9 @@ describe("POST /users/addUser", () => {
 			.set('Accept', 'application/json')
 			.expect('Content-Type', /json/)
 			.expect(201)
+			.expect({
+				message: 'User created'
+			})
 			.end(err => {
 				if (err) return done(err);
 				done();
@@ -67,14 +107,16 @@ describe("POST /users/addUser", () => {
 	});
 
 	it('respond with code 400 on bad request', done => {
-		const data = {}
+		const data = {
+			"username": "",
+			"password": ""
+		}
 		request(app)
 			.post('/users/addUser')
 			.send(data)
 			.set('Accept', 'application/json')
 			.expect('Content-Type', /json/)
 			.expect(400)
-			.expect('"User not created"')
 			.end(err => {
 				if (err) return done(err);
 				done();

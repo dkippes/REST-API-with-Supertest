@@ -1,23 +1,61 @@
+const users = [
+	{
+		id: 1,
+		username: 'diego',
+		password: 1234
+	},
+	{
+		id: 2,
+		username: 'ivan',
+		password: 4321
+	},
+	{
+		id: 3,
+		username: 'kippes',
+		password: 4567
+	}
+]
+
 const usersController = {
 	getAllUsers: (req, res) => {
-		return res.json('all users sent');
+		res.status(200).json({
+			users: users
+		})
 	},
 
 	getOneUser: (req, res) => {
 
-		if(req.params.id === "1") {
-			return res.json('User 1 Found');
+		for(let i=0; i < users.length; i++) {
+			if(req.params.id == users[i].id) {
+				return res.status(200).json({
+					user: users[i]
+				});
+			}	
 		}
-		return res.status(404).json("User not found");
+
+		return res.status(404).json({
+			message: 'User not found'
+		});
 	},
 
 	addUser: (req, res) => {
 		const { username, password } = req.body;
 
-		if(username && password) {
-			return res.status(201).json("User created")
+		if(typeof username === "undefined" || typeof password === "undefined") {
+			return res.status(206).json({
+				message: 'Partial Content'
+			});
 		}
-		res.status(400).json("User not created");
+
+		if(username && password) {
+			return res.status(201).json({
+				message: 'User created'
+			})
+		}
+		
+		res.status(400).json({
+			message: 'User not created'
+		});
 	},
 }
 
