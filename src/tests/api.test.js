@@ -43,8 +43,8 @@ describe("GET /users/:id", () => {
 			.end((err) => {
 				if(err) return done(err);
 				done();
-			})
-	})
+			});
+	});
 
 	it('respond with json "User not found"', done => {
 		request(app)
@@ -63,7 +63,7 @@ describe("GET /users/:id", () => {
 });
 
 /**
- * "GET/users/addUser"
+ * "POST/users/addUser"
  */
 describe("POST /users/addUser", () => {
 	it('respond with code 206 which is Partial Content', done => {
@@ -122,10 +122,10 @@ describe("POST /users/addUser", () => {
 				done();
 			});
 	});
-})
+});
 
 /**
- * "GET/users/addUser"
+ * "DELETE/users/deleteUser/:id"
  */
  describe("POST /users/deleteUser/:id", () => {
 	it('respond with json "User deleted"', done => {
@@ -150,4 +150,4 @@ describe("POST /users/addUser", () => {
 				done();
 			});
 	});
-})
+});
