@@ -1,4 +1,6 @@
 const users = require('../database/users');
+var jwt = require('jwt-simple');
+var secret = 'isSecret';
 
 const usersController = {
 
@@ -63,6 +65,44 @@ const usersController = {
 		return res.status(404).json({
 			message: 'User not found'
 		});
+
+	},
+
+
+	
+	verifyUser: async (req, res) => {
+		// TOKEN USER 1 - Use it in Postman
+		// eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJkaWVnbyIsInBhc3N3b3JkIjoxMjM0fQ.tlJGO2GdAG7bUDaEdVFGFoCKw9jXqi2xx-50KYsPSY0
+
+		const { authorization } = req.headers
+
+		// If auth does not come in the header
+		if(typeof authorization == "undefined") {
+			return res.status(404).json({
+				message: 'Token not found'
+			});
+		}
+
+		// If auth does not start with Bearer
+		if(!authorization.startsWith('Bearer ')) {
+			return res.status(405).json({
+				message: 'Method Not Allowed'
+			});
+		}
+		
+		// It will try to get the token
+		try {
+			const token = authorization.split(' ')[1]
+			const decoded = jwt.decode(token, secret);
+			
+			return res.status(200).json({
+				user: decoded
+			});
+		} catch {
+			return res.status(401).json({
+				message: 'Unauthorized'
+			});
+		}
 
 	},
 }
