@@ -124,3 +124,30 @@ describe("POST /users/addUser", () => {
 	});
 })
 
+/**
+ * "GET/users/addUser"
+ */
+ describe("POST /users/deleteUser/:id", () => {
+	it('respond with json "User deleted"', done => {
+		request(app)
+			.delete('/users/deleteUser/1')
+			.set('Accept', 'application/json')
+			.expect('Content-Type', /json/)
+			.expect(200, done);
+	});
+
+	it('respond with json "User not found"', done => {
+		request(app)
+			.delete('/users/deleteUser/4')
+			.set('Accept', 'application/json') // Headers
+			.expect('Content-Type', /json/) // Headers
+			.expect(404)
+			.expect({
+				message: 'User not found'
+			})
+			.end((err) => {
+				if(err) return done(err);
+				done();
+			});
+	});
+})
