@@ -1,0 +1,135 @@
+const request = require("supertest");
+const app = require(process.env.SERVER_PATH);
+const NEW_USER_NAME = "bob zoe";
+
+describe("API Test", function () {
+  this.timeout('60000');
+
+  it("returns JSON with a list of users", function (done) {
+      request(app)
+        .get('/users')
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect([ { name: 'john doe', id: 1 }, { name: 'anna boe', id: 2 } ], done)
+  });
+
+   it("endpoint /new returns expected text", function (done) {
+      request(app)
+        .get('/new')
+        .set('Accept', 'text/plain')
+        .expect({
+            "text": "welcome on the new page"
+        })
+        .end((err) => {
+            if(err) return done(err);
+			done();
+        })
+  });
+
+  it("endpoint /nonexisting returns 404 status", function (done) {
+      request(app)
+        .get('/nonexisting')
+        .set('Accept', 'application/json')
+        .expect(404)
+        .end((err) => {
+            if(err) return done(err);
+			done();
+        })
+  });
+
+  it("root path returns redirects", function (done) {
+      request(app)
+        .get('/')
+        .set('Accept', 'application/json')
+        .expect(301)
+        .end((err) => {
+            if(err) return done(err);
+			done();
+        })
+  });
+
+  it("adding new user to the list", function (done) {
+      request(app)
+        .post('/users')
+        .send({name: NEW_USER_NAME})
+        .set('Accept', 'application/json')
+        .expect(200)
+        /* .expect({
+            message: `${NEW_USER_NAME} has been added to the users list` // This one is not working and I don't know why (Unable to add new users)
+        }) */
+        .end((err) => {
+            if(err) return done(err);
+			done();
+        })
+  });
+
+});
+
+----------------------------------------------------------------------------------------------------
+
+'use strict';
+
+const express = require('express');
+const app = express();
+app.use(express.json());
+var candidates = [];
+
+app.post('/candidates', function(req, res) {
+    
+    // If req.body is empty
+    if(req.body == {}) {
+        return res.status(400).json({})
+    }
+
+    // Keeping in memory
+    candidates.push(req.body)
+    
+    return res.status(200).json(req.body)
+});
+
+app.get('/candidates/search', function(req, res) {
+    
+    const skillsArray = req.query.skills.split(',').sort();
+
+    // Candidates is empty
+    if(candidates.length == 0) {
+        return res.status(404).json({})
+    }
+
+    var maxSkillInCandidate = 0;
+    var maxSkill = 0;
+    
+    // Search in candidates
+    for(let i=0; i < candidates.length; i++) {
+
+        // Compare cadidates match with any skill in req.query
+        for(let j=0; j < candidates[i].skills.length; j++) {
+            // if it's match then add 1
+            if(skillsArray.includes(candidates[i].skills[j])) {
+                maxSkillInCandidate++;
+            }
+        }
+
+        // If the candidate has more skills than the maxSkill at that moment
+        if(maxSkillInCandidate > maxSkill) {
+            maxSkill = maxSkillInCandidate;
+            maxSkillInCandidate = 0;
+
+            // Get the bestCandidate
+            var bestCandidate = candidates[i];
+        }
+
+        
+    }
+    
+    // No candidate results, then
+    if(typeof bestCandidate == "undefined") {
+        return res.status(404).json({})
+    }
+    
+    // Response with the best candidate
+    res.status(200).json(bestCandidate);
+    
+});
+
+app.listen(process.env.HTTP_PORT || 3000);

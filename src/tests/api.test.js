@@ -5,13 +5,14 @@ const app = require('../app');
 /**
  * "GET/users"
  */
+
 describe("GET /users", () => {
 	it('respond with json containing a list of all users', done => {
 		request(app)
 			.get('/users')
 			.set('Accept', 'application/json') // Headers
 			.expect('Content-Type', /json/) // Headers
-			.expect(200, done);
+			.expect(200, done)
 	});
 });
 
@@ -37,7 +38,11 @@ describe("GET /users/:id", () => {
 				"user": {
 					"id": 1,
 					"username": "diego",
-					"password": 1234
+					"password": 1234,
+					skills: [
+						"sql",
+						"python"
+					]
 				}
 			})
 			.end((err) => {
@@ -149,5 +154,26 @@ describe("POST /users/addUser", () => {
 				if(err) return done(err);
 				done();
 			});
+	});
+});
+
+/**
+ * "GET/users/candidates/?searchs=skills=..."
+ */
+ describe("GET /users/candidates?searchs=", () => {
+	it('respond with code 200:', done => {
+		request(app)
+			.get('/users/candidates/searchs?skills=mongodb,express,javascript')
+			.set('Accept', 'application/json')
+			.expect('Content-Type', /json/)
+			.expect(200, done);
+	});
+
+	it('respond with code 404 "User not Found":', done => {
+		request(app)
+			.get('/users/candidates/searchs?skills=express,javascript')
+			.set('Accept', 'application/json')
+			.expect('Content-Type', /json/)
+			.expect(404, done);
 	});
 });

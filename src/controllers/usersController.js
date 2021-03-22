@@ -105,6 +105,50 @@ const usersController = {
 		}
 
 	},
+
+
+
+	candidateSkills: async (req, res) => {
+		// res.json(req.query);
+		// It's return { "skills": "mongodb,express,javascript" }
+		
+		if(typeof req.query.skills == "undefined" || req.query == {}) {
+			return res.status(204).json({
+				message: 'No content'
+			});		
+		}
+
+		const skillsArray = req.query.skills.split(',');
+		
+		for(let i=0; i < users.length; i++) {
+			
+			if(users[i].skills.length == skillsArray.length) {
+				const userSkillSorted = users[i].skills.sort().toString();
+				const skillsSorted = skillsArray.sort().toString();
+				
+				if (skillsSorted == userSkillSorted) {
+					return res.status(200).json({
+						user: users[i]
+					});
+				}
+			}
+
+		}
+
+		return res.status(404).json({
+			message: 'User not found'
+		});		
+		
+	},
+
+
+
+	idNombreSkillsParams: (req, res) => {
+		//const idParams = req.params.id;
+		//const nombreParams = req.params.nombre;
+		console.log(req.params);
+		res.json('bien');
+	}
 }
 
 module.exports = usersController;
